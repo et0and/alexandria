@@ -1,0 +1,14 @@
+{
+  "name": "alexandria",
+  "module": "archive.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "ora": "^8.1.1"
+  }
+}
