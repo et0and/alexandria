@@ -27,7 +27,8 @@ async function archiveUrls(urls: string[]): Promise<ArchiveResult[]> {
         }
       );
 
-      if (response.status === 200) {
+      // Handle both new archives (200) and existing archives (302)
+      if (response.status === 200 || response.status === 302) {
         const contentLocation = response.headers.get("content-location");
         if (contentLocation) {
           results.push({
@@ -49,7 +50,6 @@ async function archiveUrls(urls: string[]): Promise<ArchiveResult[]> {
       });
     }
 
-    // Add delay to be polite to the API (1 second between requests)
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
