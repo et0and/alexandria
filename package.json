@@ -1,5 +1,6 @@
 {
   "name": "alexandria",
+  "version": "0.1.0",
   "module": "archive.ts",
   "type": "module",
   "devDependencies": {

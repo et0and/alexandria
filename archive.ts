@@ -22,7 +22,7 @@ async function archiveUrls(urls: string[]): Promise<ArchiveResult[]> {
         {
           headers: {
             "User-Agent":
-              "BunArchiver/1.0 (+https://github.com/et0and/alexandria)",
+              "Alexandria/0.1.0 (+https://github.com/et0and/alexandria)",
           },
         }
       );
