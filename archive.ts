@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
-
 import ora from "ora";
+import { existsSync } from "fs";
 
 interface ArchiveResult {
   originalUrl: string;
@@ -58,6 +58,13 @@ async function archiveUrls(urls: string[]): Promise<ArchiveResult[]> {
 }
 
 async function main() {
+  if (!existsSync("input.txt")) {
+    console.error(
+      "Woops! input.txt file not found. Please create an input.txt file with URLs to archive.\nYou can use Sikemap to generate one with npx sikemap https://example.com --max 400 --output input.txt"
+    );
+    process.exit(1);
+  }
+
   // Read input file
   const inputFile = Bun.file("input.txt");
   const urls = (await inputFile.text())
@@ -77,7 +84,7 @@ async function main() {
   const csvContent = [
     "Original URL,Archived URL,Error",
     ...results.map(
-      (r) => `"${r.originalUrl}","${r.archivedUrl || ""}","${r.error || ""}"`
+      (r) => `"${r.originalUrl}","${r.archivedUrl ?? ""}","${r.error ?? ""}"`
     ),
   ].join("\n");
 
