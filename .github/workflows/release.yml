@@ -5,15 +5,18 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
@@ -27,40 +30,12 @@ jobs:
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Create Release
+      - name: Create Release and Upload Assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.get_version.outputs.VERSION }}
         run: |
-          release_response=$(curl -s -X POST \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/releases" \
-            -d '{
-              "tag_name": "v'"$VERSION"'",
-              "name": "Release v'"$VERSION"'",
-              "body": "Release of version '"$VERSION"'",
-              "draft": false,
-              "prerelease": false
-            }')
-
-          release_id=$(echo "$release_response" | jq -r '.id')
-
-          if [[ "$release_id" == "null" ]]; then
-            echo "Failed to create release: $release_response"
-            exit 1
-          fi
-
-          echo "Created release ID: $release_id"
-          echo "RELEASE_ID=$release_id" >> $GITHUB_ENV
-
-      - name: Upload Build Asset
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          curl -s -X POST \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Content-Type: application/javascript" \
-            "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ env.RELEASE_ID }}/assets?name=archive.js" \
-            --data-binary @dist/archive.js
+          gh release create "v$VERSION" \
+            --title "Release v$VERSION" \
+            --notes "Release of version $VERSION" \
+            ./dist/archive.js
